@@ -1,0 +1,43 @@
+set_feature:
+  fields:
+    shade_id:
+      required: true
+      example: 3
+      selector:
+        number:
+          min: 0
+          max: 99
+          mode: box
+    feature:
+      required: true
+      example: 4
+      selector:
+        number:
+          min: 0
+          max: 99
+          mode: box
+    position:
+      example: 50
+      selector:
+        number:
+          min: 0
+          max: 100
+          unit_of_measurement: "%"
+    level:
+      example: 128
+      selector:
+        number:
+          min: 0
+          max: 255
+          mode: box
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: hunterdouglas_platinum
+
+refresh:
+  fields:
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: hunterdouglas_platinum

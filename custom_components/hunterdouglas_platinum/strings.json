@@ -1,0 +1,85 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Hunter Douglas Platinum Gateway",
+        "description": "Enter the IP address of your Platinum gateway (shown in the Platinum App). Give it a fixed IP in your router first.",
+        "data": {
+          "host": "IP address",
+          "port": "Port"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not reach the gateway on that address. Close the Platinum App on your phone (the gateway only handles one connection at a time) and try again."
+    },
+    "abort": {
+      "already_configured": "This gateway is already set up."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Platinum options",
+        "data": {
+          "scan_interval": "Polling interval (seconds)",
+          "vane_feature": "Vane feature code",
+          "invert_middle_rail": "Invert middle rail direction",
+          "expose_unknown_features": "Create entities for unrecognised features",
+          "tdbu_shades": "Top-down/bottom-up shades (add a middle-rail control)",
+          "vane_shades": "Shades with vanes (add a vane control)",
+          "separate_vane_entities": "Create a separate 'Vanes' slider per shade"
+        },
+        "data_description": {
+          "vane_feature": "07 for Platinum vane shades. Shades that report this code get vanes automatically.",
+          "invert_middle_rail": "Turn on if 'open' moves the middle rail the wrong way.",
+          "expose_unknown_features": "Shows a 'Feature NN' cover for every feature code the gateway reports that isn't the bottom rail, middle rail or configured vane code.",
+          "tdbu_shades": "Tick blinds that open from the top. Only needed if the gateway doesn't mark them as top-down/bottom-up itself.",
+          "vane_shades": "Tick blinds with vanes that didn't get a vane control automatically.",
+          "separate_vane_entities": "Recommended: shows vanes as their own slider in any dashboard card. The tilt control on the main shade stays as well."
+        }
+      }
+    },
+    "error": {
+      "invalid_feature": "Enter a number from 0 to 99, or leave empty."
+    }
+  },
+  "services": {
+    "set_feature": {
+      "name": "Set shade feature",
+      "description": "Send a raw position to any feature of a shade. Useful for testing vane or rail codes.",
+      "fields": {
+        "shade_id": {
+          "name": "Shade ID",
+          "description": "Two-digit shade number from the gateway (see the shade's attributes)."
+        },
+        "feature": {
+          "name": "Feature code",
+          "description": "04 = bottom rail, 18 = middle rail, others discovered from the gateway."
+        },
+        "position": {
+          "name": "Position",
+          "description": "0-100 %."
+        },
+        "level": {
+          "name": "Raw level",
+          "description": "0-255, overrides position."
+        },
+        "config_entry_id": {
+          "name": "Gateway",
+          "description": "Only needed with more than one gateway."
+        }
+      }
+    },
+    "refresh": {
+      "name": "Refresh and dump",
+      "description": "Re-read the gateway and return rooms, shades, reported feature codes and the raw $dat lines.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Gateway",
+          "description": "Only needed with more than one gateway."
+        }
+      }
+    }
+  }
+}

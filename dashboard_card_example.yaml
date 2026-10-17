@@ -1,0 +1,14 @@
+# One blind. Pick any of the blind's entities; the card finds its bottom rail,
+# middle rail and vanes and shows a vertical slider for each (like the Platinum App).
+type: custom:hunterdouglas-platinum-card
+entity: cover.mbr_bottom_rail
+name: MBR                 # optional
+slider_height: 170        # optional, in pixels
+
+# A whole room: every listed blind moves together
+# ("Operate all shades in this room" in the Platinum App).
+# type: custom:hunterdouglas-platinum-card
+# name: MBR – all shades
+# entities:
+#   - cover.mbr_left_bottom_rail
+#   - cover.mbr_right_bottom_rail
