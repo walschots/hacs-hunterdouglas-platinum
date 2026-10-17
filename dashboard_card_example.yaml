@@ -1,14 +1,24 @@
-# One blind. Pick any of the blind's entities; the card finds its bottom rail,
-# middle rail and vanes and shows a vertical slider for each (like the Platinum App).
+# Compact blind card (Mushroom style): up / down, a hand button that swaps the
+# buttons for a drag bar, plus a vanes toggle and a top-down toggle when the
+# blind has them. Pick any of the blind's entities.
 type: custom:hunterdouglas-platinum-card
-entity: cover.mbr_bottom_rail
-name: MBR                 # optional
-slider_height: 170        # optional, in pixels
+entity: cover.parlor
+name: Parlor          # optional
+top_open: 10          # optional: how far the top-down button opens the top (%)
+show_vanes: true      # optional
+show_top: true        # optional
 
-# A whole room: every listed blind moves together
-# ("Operate all shades in this room" in the Platinum App).
+# Two per row, like Mushroom cards:
+# type: grid
+# columns: 2
+# square: false
+# cards:
+#   - type: custom:hunterdouglas-platinum-card
+#     entity: cover.dining_left
+#   - type: custom:hunterdouglas-platinum-card
+#     entity: cover.dining_right
+
+# A whole room on one card:
 # type: custom:hunterdouglas-platinum-card
-# name: MBR – all shades
-# entities:
-#   - cover.mbr_left_bottom_rail
-#   - cover.mbr_right_bottom_rail
+# name: Dining
+# entities: [cover.dining_left, cover.dining_right]

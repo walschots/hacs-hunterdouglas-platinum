@@ -34,7 +34,7 @@ Close the Platinum App on your phone while adding it: the gateway only handles o
 
 * **Vanes**: code `07` is the default. Every blind that reports it gets a **Vanes** slider (`cover.<blind>_vanes`), plus a tilt control on the main cover.
 * **Middle rail**: if a top-down/bottom-up blind has no *Middle rail* entity, open the integration → **Configure** → tick it under *Top-down/bottom-up shades*. The same screen has *Shades with vanes* for vane blinds that weren't detected.
-* **Combined card**: the integration ships its own dashboard card and loads it automatically. Edit a dashboard → *Add card* → search **Hunter Douglas Platinum blind** → pick any of the blind's entities. It mirrors the Platinum App: a vertical slider per control (Bottom Rail, Middle Rail, Vanes — only the ones the blind has) that moves the way the rail moves, Open/Close quick buttons at each end, and Open/Close for the whole blind in the header. List several blinds under `entities:` to operate a whole room at once. See `dashboard_card_example.yaml`.
+* **Dashboard card**: the integration ships its own card and loads it automatically. Edit a dashboard → *Add card* → search **Hunter Douglas Platinum blind**. It's compact and Mushroom-style: name and state, ↑ / ↓ buttons, a hand button that swaps the buttons for a drag bar, a vanes open/close toggle, and a top-down toggle that opens the top by `top_open` % (default 10). List several blinds under `entities:` to control a room on one card. See `dashboard_card_example.yaml`.
 * Blinds also appear on Home Assistant's built-in *Climate* dashboard. That's by design (HA counts covers as climate-relevant), not something this integration sets.
 
 ## Finding the vane code (one time)
