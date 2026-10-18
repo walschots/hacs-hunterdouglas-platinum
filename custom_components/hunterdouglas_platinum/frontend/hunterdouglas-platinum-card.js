@@ -22,7 +22,7 @@
  *
  * Served and loaded automatically by the hunterdouglas_platinum integration.
  */
-const CARD_VERSION = "0.5.1";
+const CARD_VERSION = "0.5.2";
 
 const ICONS = {
   up: "mdi:arrow-up",
@@ -360,13 +360,15 @@ class HunterDouglasPlatinumCard extends HTMLElement {
   }
 }
 
-customElements.define("hunterdouglas-platinum-card", HunterDouglasPlatinumCard);
-window.customCards = window.customCards || [];
-window.customCards.push({
-  type: "hunterdouglas-platinum-card",
-  name: "Hunter Douglas Platinum blind",
-  description: "Compact blind card: up/down, drag-to-position, vanes toggle and top-down toggle.",
-  preview: true,
-  documentationURL: "https://github.com/walschots/hacs-hunterdouglas-platinum",
-});
-console.info(`%c HUNTERDOUGLAS-PLATINUM-CARD %c ${CARD_VERSION} `, "background:#0b6;color:#fff", "");
+if (!customElements.get("hunterdouglas-platinum-card")) {
+  customElements.define("hunterdouglas-platinum-card", HunterDouglasPlatinumCard);
+  window.customCards = window.customCards || [];
+  window.customCards.push({
+    type: "hunterdouglas-platinum-card",
+    name: "Hunter Douglas Platinum blind",
+    description: "Compact blind card: up/down, drag-to-position, vanes toggle and top-down toggle.",
+    preview: true,
+    documentationURL: "https://github.com/walschots/hacs-hunterdouglas-platinum",
+  });
+  console.info(`%c HUNTERDOUGLAS-PLATINUM-CARD %c ${CARD_VERSION} `, "background:#0b6;color:#fff", "");
+}

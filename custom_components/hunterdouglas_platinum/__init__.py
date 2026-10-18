@@ -12,8 +12,8 @@ from pathlib import Path
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
-from homeassistant.const import CONF_HOST, CONF_PORT, Platform
-from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse
+from homeassistant.const import CONF_HOST, CONF_PORT, EVENT_HOMEASSISTANT_STARTED, Platform
+from homeassistant.core import CoreState, HomeAssistant, ServiceCall, SupportsResponse
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry as dr
@@ -64,18 +64,61 @@ def _coordinator_for(hass: HomeAssistant, entry_id: str | None) -> PlatinumCoord
 CARD_URL = f"/{DOMAIN}/hunterdouglas-platinum-card.js"
 
 
+async def _async_add_lovelace_resource(hass: HomeAssistant, url: str) -> bool:
+    """Add (or update) the card as a dashboard resource. Returns False if not possible.
+
+    Dashboard resources are loaded before cards are drawn, so the card is defined on
+    a cold start of the companion app (an extra_js_url can arrive too late and leave
+    'Configuration error' boxes until the page is refreshed).
+    """
+    lovelace = hass.data.get("lovelace")
+    if lovelace is None:
+        return False
+    if isinstance(lovelace, dict):  # older Home Assistant versions
+        resources = lovelace.get("resources")
+        mode = lovelace.get("resource_mode", lovelace.get("mode"))
+    else:
+        resources = getattr(lovelace, "resources", None)
+        mode = getattr(lovelace, "resource_mode", None) or getattr(lovelace, "mode", None)
+    if resources is None or mode != "storage":
+        return False
+    if not getattr(resources, "loaded", True):
+        await resources.async_load()
+        resources.loaded = True
+    for item in resources.async_items():
+        if str(item.get("url", "")).split("?")[0] == CARD_URL:
+            if item.get("url") != url:
+                await resources.async_update_item(item["id"], {"res_type": "module", "url": url})
+            return True
+    await resources.async_create_item({"res_type": "module", "url": url})
+    return True
+
+
 async def _async_register_card(hass: HomeAssistant) -> None:
-    """Serve the Lovelace card from this integration and load it on every dashboard."""
-    from homeassistant.components.frontend import add_extra_js_url
+    """Serve the dashboard card from this integration and make every dashboard load it."""
     from homeassistant.components.http import StaticPathConfig
 
     path = Path(__file__).parent / "frontend" / "hunterdouglas-platinum-card.js"
     await hass.http.async_register_static_paths([StaticPathConfig(CARD_URL, str(path), True)])
     # The URL carries a hash of the file's contents, so browsers and the companion app
-    # may cache it (cache_headers=True above): the card keeps working when the phone
-    # switches networks, and every new card version still gets a new URL.
+    # may cache it (cache_headers=True above), and every new card version gets a new URL.
     digest = await hass.async_add_executor_job(lambda: hashlib.sha1(path.read_bytes()).hexdigest()[:10])
-    add_extra_js_url(hass, f"{CARD_URL}?v={digest}")
+    url = f"{CARD_URL}?v={digest}"
+
+    async def _register(_event=None) -> None:
+        try:
+            if await _async_add_lovelace_resource(hass, url):
+                return
+        except Exception:  # noqa: BLE001 - fall back to the extra JS URL below
+            _LOGGER.debug("Could not add the card as a dashboard resource", exc_info=True)
+        from homeassistant.components.frontend import add_extra_js_url
+
+        add_extra_js_url(hass, url)
+
+    if hass.state is CoreState.running:
+        await _register()
+    else:
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _register)
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
