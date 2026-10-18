@@ -70,9 +70,10 @@ async def _async_register_card(hass: HomeAssistant) -> None:
     from homeassistant.components.http import StaticPathConfig
 
     path = Path(__file__).parent / "frontend" / "hunterdouglas-platinum-card.js"
-    await hass.http.async_register_static_paths([StaticPathConfig(CARD_URL, str(path), False)])
-    # Cache-buster from the file's contents, so every new card version gets a new URL
-    # and browsers can't keep showing an old copy.
+    await hass.http.async_register_static_paths([StaticPathConfig(CARD_URL, str(path), True)])
+    # The URL carries a hash of the file's contents, so browsers and the companion app
+    # may cache it (cache_headers=True above): the card keeps working when the phone
+    # switches networks, and every new card version still gets a new URL.
     digest = await hass.async_add_executor_job(lambda: hashlib.sha1(path.read_bytes()).hexdigest()[:10])
     add_extra_js_url(hass, f"{CARD_URL}?v={digest}")
 

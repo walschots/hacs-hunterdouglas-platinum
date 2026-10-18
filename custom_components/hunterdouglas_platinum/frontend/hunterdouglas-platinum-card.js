@@ -22,7 +22,7 @@
  *
  * Served and loaded automatically by the hunterdouglas_platinum integration.
  */
-const CARD_VERSION = "0.5.0";
+const CARD_VERSION = "0.5.1";
 
 const ICONS = {
   up: "mdi:arrow-up",
