@@ -167,6 +167,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     gateway = PlatinumGateway(entry.data[CONF_HOST], entry.data.get(CONF_PORT, DEFAULT_PORT))
     coordinator = PlatinumCoordinator(hass, entry, gateway)
+    await coordinator.async_load_known()
     await coordinator.async_config_entry_first_refresh()  # raises ConfigEntryNotReady
     entry.runtime_data = coordinator
 

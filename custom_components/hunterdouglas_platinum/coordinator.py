@@ -7,6 +7,7 @@ import logging
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import (
@@ -19,6 +20,8 @@ from .const import (
     DOMAIN,
     FEATURE_BOTTOM,
     FEATURE_MIDDLE,
+    STORAGE_SAVE_DELAY,
+    STORAGE_VERSION,
     TDBU_ROOM_TYPES,
 )
 from .gateway import PlatinumData, PlatinumError, PlatinumGateway
@@ -40,12 +43,42 @@ class PlatinumCoordinator(DataUpdateCoordinator[PlatinumData]):
         )
         self.gateway = gateway
         self._refresh_handle: asyncio.TimerHandle | None = None
+        # Last known level per shade/feature. The gateway omits features it has no
+        # stored level for (often the middle rail and vanes), so without this every
+        # poll would wipe the level we last commanded and the entity goes "unknown".
+        self._known: dict[str, dict[str, int]] = {}
+        self._store: Store[dict[str, dict[str, int]]] = Store(
+            hass, STORAGE_VERSION, f"{DOMAIN}.{entry.entry_id}.positions"
+        )
+
+    async def async_load_known(self) -> None:
+        """Restore last known levels saved before the last restart."""
+        stored = await self._store.async_load()
+        if isinstance(stored, dict):
+            self._known = {
+                str(shade): {str(f): int(lvl) for f, lvl in feats.items()}
+                for shade, feats in stored.items()
+                if isinstance(feats, dict)
+            }
+
+    def _remember(self, shade_id: str, feature: str, level: int) -> None:
+        feats = self._known.setdefault(shade_id, {})
+        if feats.get(feature) != level:
+            feats[feature] = level
+            self._store.async_delay_save(lambda: self._known, STORAGE_SAVE_DELAY)
 
     async def _async_update_data(self) -> PlatinumData:
         try:
-            return await self.gateway.get_data()
+            data = await self.gateway.get_data()
         except PlatinumError as err:
             raise UpdateFailed(str(err)) from err
+        for shade in data.shades.values():
+            # What the gateway reports wins; fill gaps from the last known level.
+            for feature, level in shade.positions.items():
+                self._remember(shade.id, feature, level)
+            for feature, level in self._known.get(shade.id, {}).items():
+                shade.positions.setdefault(feature, level)
+        return data
 
     @property
     def vane_feature(self) -> str:
@@ -78,6 +111,7 @@ class PlatinumCoordinator(DataUpdateCoordinator[PlatinumData]):
         # so the commanded level is the best state we will ever get.
         if shade := self.data.shades.get(shade_id):
             shade.positions[feature] = level
+        self._remember(shade_id, feature, level)
         self.async_update_listeners()
         self._schedule_refresh()
 

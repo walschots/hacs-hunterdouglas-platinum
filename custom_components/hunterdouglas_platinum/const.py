@@ -20,6 +20,9 @@ FEATURE_MIDDLE = "18"
 # Room "shade type" codes that indicate top-down/bottom-up shades.
 TDBU_ROOM_TYPES = {"02", "13"}
 
+STORAGE_VERSION = 1
+STORAGE_SAVE_DELAY = 10  # seconds
+
 SERVICE_SET_FEATURE = "set_feature"
 SERVICE_REFRESH = "refresh"
 ATTR_SHADE_ID = "shade_id"
