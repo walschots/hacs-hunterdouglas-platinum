@@ -22,7 +22,7 @@
  *
  * Served and loaded automatically by the hunterdouglas_platinum integration.
  */
-const CARD_VERSION = "0.5.2";
+const CARD_VERSION = "0.5.4";
 
 const ICONS = {
   up: "mdi:arrow-up",
@@ -344,8 +344,8 @@ class HunterDouglasPlatinumCard extends HTMLElement {
     this._els.iconEl.setAttribute("icon", this._config.icon || (open ? ICONS.open : ICONS.closed));
 
     const b = this._els.btn;
-    b.up.disabled = (vals.bottom ?? 0) >= 100;
-    b.down.disabled = vals.bottom !== null && vals.bottom <= 0;
+    // Never disable up/down: the remote can move a shade without HA knowing (one-way RF),
+    // so "already closed" may be wrong and the button must still resend the command.
     b.vanes.hidden = !(groups.vanes && this._config.show_vanes);
     const vanesOpen = (vals.vanes ?? 0) > 50;
     b.vanes.classList.toggle("on", vanesOpen);

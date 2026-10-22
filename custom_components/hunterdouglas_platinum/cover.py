@@ -63,6 +63,10 @@ class _PlatinumCover(PlatinumShadeEntity, CoverEntity):
     feature: str = FEATURE_BOTTOM
     invert = False
     role = "feature"  # read by the Lovelace card to group a blind's controls
+    # Platinum shades are one-way RF: moves made with the handheld remote never reach
+    # the gateway, so the state is only the last level *we* commanded. Flagging it as
+    # assumed keeps HA's open/close buttons usable even when the state looks "done".
+    _attr_assumed_state = True
 
     def __init__(self, coordinator: PlatinumCoordinator, shade_id: str) -> None:
         super().__init__(coordinator, shade_id)
