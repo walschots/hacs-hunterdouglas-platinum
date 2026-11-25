@@ -172,7 +172,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     entry.runtime_data = coordinator
 
     data = coordinator.data
-    dr.async_get(hass).async_get_or_create(
+    gateway_device = dr.async_get(hass).async_get_or_create(
         config_entry_id=entry.entry_id,
         identifiers={(DOMAIN, data.mac or entry.entry_id)},
         manufacturer=MANUFACTURER,
@@ -180,6 +180,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         name=data.house_name or "Platinum Gateway",
         sw_version=data.firmware or None,
     )
+    # Shade devices link to the gateway by its device registry id (via_device_id).
+    coordinator.gateway_device_id = gateway_device.id
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(_async_reload))

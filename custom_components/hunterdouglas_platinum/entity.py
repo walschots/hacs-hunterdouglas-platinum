@@ -29,7 +29,7 @@ class PlatinumShadeEntity(CoordinatorEntity[PlatinumCoordinator]):
             manufacturer=MANUFACTURER,
             model="Platinum shade",
             suggested_area=room.name if room else None,
-            via_device=(DOMAIN, gw),
+            via_device_id=coordinator.gateway_device_id,
         )
 
     @property
