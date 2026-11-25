@@ -42,6 +42,8 @@ class PlatinumCoordinator(DataUpdateCoordinator[PlatinumData]):
             update_interval=timedelta(seconds=interval),
         )
         self.gateway = gateway
+        # Device registry id of the gateway device, set in async_setup_entry.
+        self.gateway_device_id: str | None = None
         self._refresh_handle: asyncio.TimerHandle | None = None
         # Last known level per shade/feature. The gateway omits features it has no
         # stored level for (often the middle rail and vanes), so without this every
